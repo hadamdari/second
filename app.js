@@ -388,14 +388,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const currentPw = DataManager.getAdminPassword();
     const validPws = ["0104010", "kjk=0104010", "1234", "kjy", "kjk", currentPw];
-    const isPwCorrect = validPws.includes(pw) || pw.includes("0104010") || pw.includes("0104");
+    const isPwCorrect = validPws.includes(pw) || pw.includes("0104010") || pw.includes("0104") || pw === "0104010";
 
     if (isPwCorrect) {
       isAdminLoggedIn = true;
       adminLoginError.style.display = "none";
+      
+      // 1. Instantly hide login modal & show admin dashboard modal
       adminLoginModal.classList.remove("active");
+      adminDashboardModal.classList.add("active");
+      document.body.style.overflow = "hidden";
       openAdminLoginBtn.textContent = "⚙️ 관리자 패널";
-      openAdminDashboard();
+
+      // 2. Fetch and populate dashboard data in background asynchronously (never block UI)
+      setTimeout(() => {
+        populateAdminProfileForm().catch(err => console.warn("Profile form load:", err));
+        renderAdminGlossaryTable().catch(err => console.warn("Glossary table load:", err));
+        renderAdminNewsTable().catch(err => console.warn("News table load:", err));
+      }, 0);
     } else {
       adminLoginError.style.display = "block";
       adminLoginError.style.background = "rgba(239, 68, 68, 0.2)";
@@ -405,32 +415,21 @@ document.addEventListener("DOMContentLoaded", () => {
       adminLoginError.style.marginTop = "0.5rem";
       adminLoginError.style.color = "#f87171";
       adminLoginError.style.fontSize = "0.85rem";
-      adminLoginError.innerHTML = `❌ <strong>비밀번호가 올바르지 않습니다!</strong><br><span style="font-size:0.8rem; color:#e5e7eb;">기본 비밀번호는 <strong>0104010</strong> 입니다.</span>`;
+      adminLoginError.innerHTML = "❌ <strong>비밀번호가 올바르지 않습니다.</strong> 다시 확인 후 입력해 주세요.";
     }
   });
 
   // Open Admin Dashboard
-  async function openAdminDashboard() {
-    // Hide login modal & show dashboard modal immediately
+  function openAdminDashboard() {
     adminLoginModal.classList.remove("active");
     adminDashboardModal.classList.add("active");
     document.body.style.overflow = "hidden";
 
-    try {
-      await populateAdminProfileForm();
-    } catch (e) {
-      console.warn("Failed populating admin profile form:", e);
-    }
-    try {
-      await renderAdminGlossaryTable();
-    } catch (e) {
-      console.warn("Failed rendering admin glossary table:", e);
-    }
-    try {
-      await renderAdminNewsTable();
-    } catch (e) {
-      console.warn("Failed rendering admin news table:", e);
-    }
+    setTimeout(() => {
+      populateAdminProfileForm().catch(err => console.warn("Profile form load:", err));
+      renderAdminGlossaryTable().catch(err => console.warn("Glossary table load:", err));
+      renderAdminNewsTable().catch(err => console.warn("News table load:", err));
+    }, 0);
   }
 
   closeAdminDashboardBtn.addEventListener("click", () => {

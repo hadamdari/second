@@ -647,9 +647,13 @@ const QUIZ_DATA = [
 const SUPABASE_URL = "https://fufddwnvmscezmosfrca.supabase.co";
 const SUPABASE_KEY = "sb_publishable_c13z6QqiWMKorXdJIOuNmw_tVv87gzT";
 
-let supabase = null;
-if (window.supabase && typeof window.supabase.createClient === "function") {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let supabaseClient = null;
+try {
+  if (typeof window !== "undefined" && window.supabase && typeof window.supabase.createClient === "function") {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+} catch (err) {
+  console.warn("Supabase client init error:", err);
 }
 
 // DataManager for Supabase Database & Fallback Storage Sync
@@ -676,9 +680,9 @@ const DataManager = {
 
   // --- Creator Profile (소개) ---
   async getCreator() {
-    if (supabase) {
+    if (supabaseClient) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("creator_profile")
           .select("*")
           .eq("id", 1)
@@ -715,9 +719,9 @@ const DataManager = {
 
   async saveCreator(profileObj) {
     localStorage.setItem(this.STORAGE_KEYS.CREATOR, JSON.stringify(profileObj));
-    if (supabase) {
+    if (supabaseClient) {
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("creator_profile")
           .upsert({
             id: 1,
@@ -744,9 +748,9 @@ const DataManager = {
 
   // --- News & Portfolio Work Items (동향 및 작업물) ---
   async getNews() {
-    if (supabase) {
+    if (supabaseClient) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("news_trends")
           .select("*")
           .order("id", { ascending: true });
@@ -778,7 +782,7 @@ const DataManager = {
 
   async saveNews(newsArray) {
     localStorage.setItem(this.STORAGE_KEYS.NEWS, JSON.stringify(newsArray));
-    if (supabase) {
+    if (supabaseClient) {
       try {
         const rows = newsArray.map(item => ({
           id: item.id,
@@ -790,7 +794,7 @@ const DataManager = {
           snippet: item.snippet,
           tags: item.tags || []
         }));
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("news_trends")
           .upsert(rows);
         if (error) console.error("Supabase upsert news_trends error:", error);
@@ -804,9 +808,9 @@ const DataManager = {
     let newsList = await this.getNews();
     newsList = newsList.filter(item => item.id !== id);
     localStorage.setItem(this.STORAGE_KEYS.NEWS, JSON.stringify(newsList));
-    if (supabase) {
+    if (supabaseClient) {
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("news_trends")
           .delete()
           .eq("id", id);
@@ -820,9 +824,9 @@ const DataManager = {
 
   // --- Glossary (용어집 50선) ---
   async getGlossary() {
-    if (supabase) {
+    if (supabaseClient) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("glossary")
           .select("*")
           .order("id", { ascending: true });
@@ -855,7 +859,7 @@ const DataManager = {
 
   async saveGlossary(glossaryArray) {
     localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryArray));
-    if (supabase) {
+    if (supabaseClient) {
       try {
         const rows = glossaryArray.map(item => ({
           id: item.id,
@@ -868,7 +872,7 @@ const DataManager = {
           audience_tags: item.audienceTags || [],
           analogy: item.analogy
         }));
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("glossary")
           .upsert(rows);
         if (error) console.error("Supabase upsert glossary error:", error);
@@ -882,9 +886,9 @@ const DataManager = {
     let glossaryList = await this.getGlossary();
     glossaryList = glossaryList.filter(item => item.id !== id);
     localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryList));
-    if (supabase) {
+    if (supabaseClient) {
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("glossary")
           .delete()
           .eq("id", id);
