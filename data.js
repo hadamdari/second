@@ -1,6 +1,21 @@
 // semiconductor-hub data.js
 
-const GLOSSARY_DATA = [
+const DEFAULT_CREATOR_PROFILE = {
+  name: "권지연",
+  engName: "JIYEON KWON",
+  dept: "신소재공학과 반도체재료 전공",
+  phone: "010-8273-9481",
+  email: "jiyeon.kwon@semilab.ac.kr",
+  bioHeadline: "\"어려운 전자 재료학 원리를 누구나 직관적으로 이해할 수 있도록!\"",
+  bioParagraph1: "안녕하세요, <strong>신소재공학과 권지연(JIYEON KWON)</strong>입니다. 반도체의 미세 결정 구조와 전하 이동 원리에 매료되어 반도체 재료 및 소자 공정을 탐구하고 있습니다.",
+  bioParagraph2: "반도체에 입문하는 학생, 밸류체인을 분석하는 투자자, 그리고 학술 연구 및 강의를 하시는 교수님 모두가 한눈에 원리와 용어 50선, 최신 동향을 파악하고 쉽게 소통할 수 있도록 지식 공유 웹 플랫폼을 제작하였습니다.",
+  research1Title: "🔬 관심 영역 1",
+  research1Desc: "Extreme UV (EUV) 노광 공정용 포토레지스트 신소재 개발",
+  research2Title: "⚡ 관심 영역 2",
+  research2Desc: "GAA (Gate-All-Around) 트랜지스터 및 3D HBM 패키징 기술"
+};
+
+const DEFAULT_GLOSSARY_DATA = [
   // 1. 전기와 재료의 기초
   {
     id: 1,
@@ -219,7 +234,7 @@ const GLOSSARY_DATA = [
     categoryName: "2. 반도체의 구조와 기본 소자",
     term: "다이오드",
     engTerm: "Diode",
-    summary: "전류를 한쪽 방향으로만 흐르게 제어하는 기초 소자",
+    summary: "전류를 주로 한 방향으로만 흐르게 하는 기초 소자",
     desc: "전류를 주로 한 방향으로만 흐르게 하는 반도체 소자이다. 전류의 방향을 바로잡거나 회로를 보호하는 데 사용된다.",
     audienceTags: ["입문 필수", "투자 필수"],
     analogy: "배에서 물이 거꾸로 들어오지 못하게 막는 체크 밸브"
@@ -562,36 +577,36 @@ const GLOSSARY_DATA = [
   }
 ];
 
-const NEWS_TRENDS = [
+const DEFAULT_NEWS_TRENDS = [
   {
     id: 1,
     title: "AI 반도체 붐과 HBM3E 수율 경쟁: 3D 패키징이 핵심 변수로",
     category: "AI & 차세대 메모리",
     date: "2026.08.01",
-    source: "신소재 반도체 리포트",
+    mediaOutlet: "신소재 반도체 리포트",
+    articleLink: "https://example.com/news/1",
     snippet: "인공지능 모델 학습에 필수적인 고대역폭 메모리(HBM) 시장에서 TSV 증착 기술과 Advanced Packaging 수율 개선이 글로벌 파운드리 및 IDM의 최대 화두로 떠오르고 있습니다.",
-    tags: ["GPU", "HBM", "패키징", "수율", "IDM"],
-    link: "#"
+    tags: ["GPU", "HBM", "패키징", "수율", "IDM"]
   },
   {
     id: 2,
     title: "2나노 이하 미세공정 시대를 열다: GAA 트랜지스터와 High-NA EUV",
     category: "파운드리 & 미세공정",
     date: "2026.07.28",
-    source: "신소재공학 기술 브리핑",
+    mediaOutlet: "신소재공학 기술 브리핑",
+    articleLink: "https://example.com/news/2",
     snippet: "기존 FinFET 구조의 게이트 누설전류 한계를 극복하기 위해 Multi-Bridge-Channel GAA(Gate-All-Around) 트랜지스터와 포토리소그래피 신소재 노광기술 도입이 가속화되고 있습니다.",
-    tags: ["MOSFET", "게이트", "포토리소그래피", "파운드리", "팹리스"],
-    link: "#"
+    tags: ["MOSFET", "게이트", "포토리소그래피", "파운드리", "팹리스"]
   },
   {
     id: 3,
     title: "전기차와 우주항공을 위한 차세대 전력 반도체: SiC & GaN 와이드 밴드갭 재료",
     category: "신소재 & 전력 반도체",
     date: "2026.07.20",
-    source: "글로벌 재료공학 저널",
+    mediaOutlet: "글로벌 재료공학 저널",
+    articleLink: "https://example.com/news/3",
     snippet: "기존 실리콘(Si) 기판 대비 고전압, 고온 환경에서 뛰어난 효율을 보이는 실리콘카바이드(SiC) 및 질화갈륨(GaN) 소재 도핑 기술 혁신이 전력 반도체 업계를 재편하고 있습니다.",
-    tags: ["실리콘", "전력 반도체", "도핑", "센서"],
-    link: "#"
+    tags: ["실리콘", "전력 반도체", "도핑", "센서"]
   }
 ];
 
@@ -627,3 +642,54 @@ const QUIZ_DATA = [
     explanation: "정답은 'NAND 플래시'입니다! 전원이 꺼져도 보관되는 비휘발성 메모리로 SSD, 스마트폰 등에 쓰입니다."
   }
 ];
+
+// DataManager for LocalStorage Sync
+const DataManager = {
+  STORAGE_KEYS: {
+    CREATOR: "semilab_creator_profile",
+    GLOSSARY: "semilab_glossary_list",
+    NEWS: "semilab_news_list"
+  },
+
+  getCreator() {
+    const saved = localStorage.getItem(this.STORAGE_KEYS.CREATOR);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return DEFAULT_CREATOR_PROFILE;
+  },
+
+  saveCreator(profileObj) {
+    localStorage.setItem(this.STORAGE_KEYS.CREATOR, JSON.stringify(profileObj));
+  },
+
+  getGlossary() {
+    const saved = localStorage.getItem(this.STORAGE_KEYS.GLOSSARY);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return DEFAULT_GLOSSARY_DATA;
+  },
+
+  saveGlossary(glossaryArray) {
+    localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryArray));
+  },
+
+  getNews() {
+    const saved = localStorage.getItem(this.STORAGE_KEYS.NEWS);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return DEFAULT_NEWS_TRENDS;
+  },
+
+  saveNews(newsArray) {
+    localStorage.setItem(this.STORAGE_KEYS.NEWS, JSON.stringify(newsArray));
+  },
+
+  resetAllToDefault() {
+    localStorage.removeItem(this.STORAGE_KEYS.CREATOR);
+    localStorage.removeItem(this.STORAGE_KEYS.GLOSSARY);
+    localStorage.removeItem(this.STORAGE_KEYS.NEWS);
+  }
+};

@@ -1,21 +1,23 @@
 // semiconductor-hub app.js
 
 document.addEventListener("DOMContentLoaded", () => {
-  // State variables
+  // Application State
   let currentCategory = 0; // 0: All, 1~5: Categories
   let currentAudience = "ALL"; // ALL, "입문 필수", "투자 필수", "교수/학술"
   let searchQuery = "";
   let currentQuizIndex = 0;
   let quizScore = 0;
+  let isAdminLoggedIn = false;
 
-  // DOM Elements
+  // Main Page DOM Elements
   const glossaryGrid = document.getElementById("glossaryGrid");
   const searchInput = document.getElementById("searchInput");
   const catFilterContainer = document.getElementById("catFilterContainer");
   const audienceFilterBtns = document.querySelectorAll(".audience-chip-btn");
   const totalCountEl = document.getElementById("totalCount");
-  
-  // Modal DOM
+  const newsGrid = document.getElementById("newsGrid");
+
+  // Term Modal DOM
   const modalOverlay = document.getElementById("modalOverlay");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
   const modalCategory = document.getElementById("modalCategory");
@@ -24,9 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalDesc = document.getElementById("modalDesc");
   const modalAnalogy = document.getElementById("modalAnalogy");
   const modalTags = document.getElementById("modalTags");
-
-  // News DOM
-  const newsGrid = document.getElementById("newsGrid");
 
   // Quiz DOM
   const quizQuestion = document.getElementById("quizQuestion");
@@ -37,29 +36,93 @@ document.addEventListener("DOMContentLoaded", () => {
   // Contact Form DOM
   const contactForm = document.getElementById("contactForm");
 
-  // 1. Initialize Glossary Cards
+  // Admin Elements
+  const openAdminLoginBtn = document.getElementById("openAdminLoginBtn");
+  const adminLoginModal = document.getElementById("adminLoginModal");
+  const closeAdminLoginBtn = document.getElementById("closeAdminLoginBtn");
+  const adminLoginForm = document.getElementById("adminLoginForm");
+  const adminLoginError = document.getElementById("adminLoginError");
+
+  const adminDashboardModal = document.getElementById("adminDashboardModal");
+  const closeAdminDashboardBtn = document.getElementById("closeAdminDashboardBtn");
+  const adminLogoutBtn = document.getElementById("adminLogoutBtn");
+  const resetDataBtn = document.getElementById("resetDataBtn");
+
+  const adminTabBtns = [
+    document.getElementById("adminTabBtn1"),
+    document.getElementById("adminTabBtn2"),
+    document.getElementById("adminTabBtn3")
+  ];
+  const adminTabContents = [
+    document.getElementById("adminProfileTab"),
+    document.getElementById("adminGlossaryTab"),
+    document.getElementById("adminTrendsTab")
+  ];
+
+  // 1. Render Creator Profile Section from DataManager
+  function renderCreatorProfile() {
+    const profile = DataManager.getCreator();
+    const creatorContainer = document.querySelector("#creator .creator-container");
+    if (!creatorContainer) return;
+
+    creatorContainer.innerHTML = `
+      <div class="creator-card">
+        <div class="creator-avatar">👩‍🔬</div>
+        <h3 class="creator-name">${profile.name} <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">(${profile.engName})</span></h3>
+        <div class="creator-dept">${profile.dept}</div>
+        <div class="creator-badges" style="margin-top: 0.75rem;">
+          <span class="creator-badge-item">반도체 재료 연구</span>
+          <span class="creator-badge-item">포토리소그래피 공정</span>
+          <span class="creator-badge-item">지식 공유자</span>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: left; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+          <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem; font-weight: 600;">📱 Contact Details</div>
+          <div style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📞 전화번호:</span> <strong>${profile.phone}</strong>
+          </div>
+          <div style="font-size: 0.9rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span>📧 이메일:</span> <strong>${profile.email}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="creator-bio">
+        <h3 style="font-size:1.6rem; margin-bottom:1rem; color:var(--primary-cyan);">
+          ${profile.bioHeadline}
+        </h3>
+        <p>${profile.bioParagraph1}</p>
+        <p>${profile.bioParagraph2}</p>
+
+        <div class="research-list">
+          <div class="research-item">
+            <h5>${profile.research1Title}</h5>
+            <p>${profile.research1Desc}</p>
+          </div>
+          <div class="research-item">
+            <h5>${profile.research2Title}</h5>
+            <p>${profile.research2Desc}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 2. Render Glossary Section from DataManager
   function renderGlossary() {
     glossaryGrid.innerHTML = "";
+    const glossaryList = DataManager.getGlossary();
 
-    const filtered = GLOSSARY_DATA.filter((item) => {
-      // Category Filter
-      if (currentCategory !== 0 && item.category !== currentCategory) {
-        return false;
-      }
-      // Audience Filter
-      if (currentAudience !== "ALL" && !item.audienceTags.includes(currentAudience)) {
-        return false;
-      }
-      // Search Filter
+    const filtered = glossaryList.filter((item) => {
+      if (currentCategory !== 0 && item.category !== currentCategory) return false;
+      if (currentAudience !== "ALL" && !item.audienceTags.includes(currentAudience)) return false;
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase();
         const matchTerm = item.term.toLowerCase().includes(query);
         const matchEng = item.engTerm.toLowerCase().includes(query);
         const matchSum = item.summary.toLowerCase().includes(query);
         const matchDesc = item.desc.toLowerCase().includes(query);
-        if (!matchTerm && !matchEng && !matchSum && !matchDesc) {
-          return false;
-        }
+        if (!matchTerm && !matchEng && !matchSum && !matchDesc) return false;
       }
       return true;
     });
@@ -81,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "term-card";
       card.addEventListener("click", () => openTermModal(item));
 
-      // Build Tags HTML
       const tagsHtml = item.audienceTags.map(tag => {
         let tagClass = "beginner";
         if (tag === "투자 필수") tagClass = "investor";
@@ -109,15 +171,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Term Modal Handler
+  // 3. Term Modal Handler
   function openTermModal(item) {
-    modalCategory.textContent = item.categoryName;
+    modalCategory.textContent = item.categoryName || `카테고리 ${item.category}`;
     modalTitle.textContent = item.term;
     modalEng.textContent = item.engTerm;
     modalDesc.textContent = item.desc;
     modalAnalogy.textContent = item.analogy || "실생활 개념에 비유된 직관적 설명이 포함되어 있습니다.";
 
-    // Modal Tags
     modalTags.innerHTML = item.audienceTags.map(tag => {
       let tagClass = "beginner";
       if (tag === "투자 필수") tagClass = "investor";
@@ -139,9 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // 3. Setup Category & Audience Filter Listeners
+  // 4. Setup Category & Audience Filter Listeners
   const catButtons = [
-    { catId: 0, text: "전체 (50)" },
+    { catId: 0, text: "전체" },
     { catId: 1, text: "1. 전기/재료" },
     { catId: 2, text: "2. 구조/소자" },
     { catId: 3, text: "3. 트랜지스터/회로" },
@@ -176,28 +237,30 @@ document.addEventListener("DOMContentLoaded", () => {
     renderGlossary();
   });
 
-  // 4. Render News Trends
+  // 5. Render News Trends Section from DataManager
   function renderNews() {
     newsGrid.innerHTML = "";
-    NEWS_TRENDS.forEach(news => {
+    const newsList = DataManager.getNews();
+
+    newsList.forEach(news => {
       const card = document.createElement("div");
       card.className = "glass-card news-card";
 
-      const tagsHtml = news.tags.map(t => `<span class="news-tag">#${t}</span>`).join(" ");
+      const tagsHtml = (news.tags || []).map(t => `<span class="news-tag">#${t}</span>`).join(" ");
 
       card.innerHTML = `
         <div>
           <div class="news-meta">
-            <span class="news-cat">${news.category}</span>
-            <span>${news.date} | ${news.source}</span>
+            <span class="news-cat">${news.category || "산업 동향"}</span>
+            <span>${news.date} | <strong>${news.mediaOutlet || "언론사"}</strong></span>
           </div>
           <h3 class="news-title">${news.title}</h3>
           <p class="news-snippet">${news.snippet}</p>
           <div class="news-tags">${tagsHtml}</div>
         </div>
         <div style="margin-top: 1rem;">
-          <a href="${news.link}" onclick="alert('신소재공학도 추천 동향 리포트입니다. 선택한 키워드가 용어집 50선에 자동 반영되어 있습니다.'); return false;" style="color: var(--primary-cyan); font-weight: 600; text-decoration: none; font-size: 0.9rem;">
-            전체 분석 리포트 읽기 →
+          <a href="${news.articleLink || '#'}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-cyan); font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+            원문 기사 읽기 & 분석 리포트 →
           </a>
         </div>
       `;
@@ -206,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 5. Quiz Logic
+  // 6. Quiz Logic
   function loadQuiz() {
     if (currentQuizIndex >= QUIZ_DATA.length) {
       quizQuestion.textContent = `🎉 퀴즈 완료! 최종 점수: ${quizScore} / ${QUIZ_DATA.length}`;
@@ -250,10 +313,8 @@ document.addEventListener("DOMContentLoaded", () => {
       quizFeedback.innerHTML = `❌ <strong>아쉽네요!</strong><br>${questionObj.explanation}`;
     }
 
-    // Disable option buttons
     document.querySelectorAll(".quiz-opt-btn").forEach(b => b.style.pointerEvents = "none");
 
-    // Show Next Button
     setTimeout(() => {
       const nextBtn = document.createElement("button");
       nextBtn.className = "btn-nav-action";
@@ -268,8 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 400);
   }
 
-  // 6. Interactive Principle Tabs
-  const tabButtons = document.querySelectorAll(".tab-btn");
+  // 7. Interactive Principle Tabs
+  const tabButtons = document.querySelectorAll(".tab-btn[data-tab]");
   const tabContents = document.querySelectorAll(".tab-content");
 
   tabButtons.forEach(btn => {
@@ -283,7 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 7. Contact Form Handling
+  // 8. Contact Form Handling
   contactForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const name = document.getElementById("senderName").value;
@@ -296,12 +357,325 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Interactive Submission Success Dialog
-    alert(`📧 [SemiLab 메일 발송 성공]\n\n보내신 분: ${name} (${role})\n답장 받으실 이메일: ${email}\n\n신소재공학도 제작자에게 메시지가 성공적으로 전송되었습니다! 정성껏 검토 후 답장드리겠습니다.`);
+    alert(`📧 [SemiLab 메일 발송 성공]\n\n보내신 분: ${name} (${role})\n답장 받으실 이메일: ${email}\n\n권지연 제작자에게 메시지가 성공적으로 전송되었습니다! 정성껏 검토 후 답장드리겠습니다.`);
     contactForm.reset();
   });
 
-  // Initial Load Call
+  // ==========================================================================
+  // 9. ADMIN PANEL & LOCAL STORAGE LOGIC
+  // ==========================================================================
+
+  // Open / Close Admin Login Modal
+  openAdminLoginBtn.addEventListener("click", () => {
+    if (isAdminLoggedIn) {
+      openAdminDashboard();
+    } else {
+      adminLoginModal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+  });
+
+  closeAdminLoginBtn.addEventListener("click", () => {
+    adminLoginModal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  });
+
+  // Admin Login Verification
+  adminLoginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const id = document.getElementById("adminUsername").value.trim();
+    const pw = document.getElementById("adminPassword").value.trim();
+
+    if (id === "admin" && pw === "1234") {
+      isAdminLoggedIn = true;
+      adminLoginError.style.display = "none";
+      adminLoginModal.classList.remove("active");
+      openAdminLoginBtn.textContent = "⚙️ 관리자 패널";
+      openAdminDashboard();
+    } else {
+      adminLoginError.style.display = "block";
+    }
+  });
+
+  // Open Admin Dashboard
+  function openAdminDashboard() {
+    populateAdminProfileForm();
+    renderAdminGlossaryTable();
+    renderAdminNewsTable();
+    adminDashboardModal.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  closeAdminDashboardBtn.addEventListener("click", () => {
+    adminDashboardModal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  });
+
+  adminLogoutBtn.addEventListener("click", () => {
+    isAdminLoggedIn = false;
+    openAdminLoginBtn.textContent = "🔒 관리자";
+    adminDashboardModal.classList.remove("active");
+    document.body.style.overflow = "auto";
+    alert("관리자 계정에서 로그아웃되었습니다.");
+  });
+
+  // Reset Data Button
+  resetDataBtn.addEventListener("click", () => {
+    if (confirm("정말로 모든 추가/수정된 데이터를 초기화하고 기본 데이터로 되돌리시겠습니까?")) {
+      DataManager.resetAllToDefault();
+      renderCreatorProfile();
+      renderGlossary();
+      renderNews();
+      populateAdminProfileForm();
+      renderAdminGlossaryTable();
+      renderAdminNewsTable();
+      alert("모든 데이터가 기본값으로 성공적으로 초기화되었습니다.");
+    }
+  });
+
+  // Admin Tab Navigation
+  adminTabBtns.forEach((btn, index) => {
+    btn.addEventListener("click", () => {
+      adminTabBtns.forEach(b => b.classList.remove("active"));
+      adminTabContents.forEach(c => c.style.display = "none");
+
+      btn.classList.add("active");
+      const targetId = btn.dataset.admintab;
+      document.getElementById(targetId).style.display = "block";
+    });
+  });
+
+  // --- Admin Tab 1: Creator Profile Edit Form ---
+  function populateAdminProfileForm() {
+    const profile = DataManager.getCreator();
+    document.getElementById("editCreatorName").value = profile.name;
+    document.getElementById("editCreatorEngName").value = profile.engName;
+    document.getElementById("editCreatorDept").value = profile.dept;
+    document.getElementById("editCreatorPhone").value = profile.phone;
+    document.getElementById("editCreatorEmail").value = profile.email;
+    document.getElementById("editCreatorHeadline").value = profile.bioHeadline;
+    document.getElementById("editCreatorBio1").value = profile.bioParagraph1;
+    document.getElementById("editCreatorBio2").value = profile.bioParagraph2;
+    document.getElementById("editCreatorResearch1Title").value = profile.research1Title;
+    document.getElementById("editCreatorResearch1Desc").value = profile.research1Desc;
+    document.getElementById("editCreatorResearch2Title").value = profile.research2Title;
+    document.getElementById("editCreatorResearch2Desc").value = profile.research2Desc;
+  }
+
+  document.getElementById("adminProfileForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const updatedProfile = {
+      name: document.getElementById("editCreatorName").value,
+      engName: document.getElementById("editCreatorEngName").value,
+      dept: document.getElementById("editCreatorDept").value,
+      phone: document.getElementById("editCreatorPhone").value,
+      email: document.getElementById("editCreatorEmail").value,
+      bioHeadline: document.getElementById("editCreatorHeadline").value,
+      bioParagraph1: document.getElementById("editCreatorBio1").value,
+      bioParagraph2: document.getElementById("editCreatorBio2").value,
+      research1Title: document.getElementById("editCreatorResearch1Title").value,
+      research1Desc: document.getElementById("editCreatorResearch1Desc").value,
+      research2Title: document.getElementById("editCreatorResearch2Title").value,
+      research2Desc: document.getElementById("editCreatorResearch2Desc").value
+    };
+
+    DataManager.saveCreator(updatedProfile);
+    renderCreatorProfile();
+    alert("💾 제작자 프로필 정보가 성공적으로 수정되어 저장되었습니다!");
+  });
+
+  // --- Admin Tab 2: Glossary Management ---
+  function renderAdminGlossaryTable() {
+    const glossaryList = DataManager.getGlossary();
+    document.getElementById("adminGlossaryCount").textContent = glossaryList.length;
+    const tableBody = document.getElementById("adminGlossaryTableBody");
+    tableBody.innerHTML = "";
+
+    glossaryList.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      tr.style.borderBottom = "1px solid var(--border-glass)";
+      tr.innerHTML = `
+        <td style="padding: 0.75rem;">${item.id}</td>
+        <td style="padding: 0.75rem; color: var(--primary-cyan);">${item.category}장</td>
+        <td style="padding: 0.75rem; font-weight: 600;">${item.term}</td>
+        <td style="padding: 0.75rem; color: var(--text-dim);">${item.engTerm}</td>
+        <td style="padding: 0.75rem; text-align: center;">
+          <button class="admin-action-btn delete" onclick="deleteGlossaryItem(${item.id})">삭제</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  // Add Term Form Submit
+  document.getElementById("addTermForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const glossaryList = DataManager.getGlossary();
+    const newId = glossaryList.length > 0 ? Math.max(...glossaryList.map(t => t.id)) + 1 : 1;
+
+    const catValue = parseInt(document.getElementById("addCategory").value, 10);
+    const catNames = [
+      "",
+      "1. 전기와 재료의 기초",
+      "2. 반도체의 구조와 기본 소자",
+      "3. 트랜지스터와 디지털 회로",
+      "4. 반도체의 종류와 응용",
+      "5. 제조 공정과 산업 구조"
+    ];
+
+    const audienceTags = [];
+    if (document.getElementById("tagBeginner").checked) audienceTags.push("입문 필수");
+    if (document.getElementById("tagInvestor").checked) audienceTags.push("투자 필수");
+    if (document.getElementById("tagAcademic").checked) audienceTags.push("교수/학술");
+
+    const newTermObj = {
+      id: newId,
+      category: catValue,
+      categoryName: catNames[catValue],
+      term: document.getElementById("addTerm").value.trim(),
+      engTerm: document.getElementById("addEngTerm").value.trim(),
+      summary: document.getElementById("addSummary").value.trim(),
+      desc: document.getElementById("addDesc").value.trim(),
+      audienceTags: audienceTags.length > 0 ? audienceTags : ["입문 필수"],
+      analogy: document.getElementById("addAnalogy").value.trim()
+    };
+
+    glossaryList.push(newTermObj);
+    DataManager.saveGlossary(glossaryList);
+
+    renderGlossary();
+    renderAdminGlossaryTable();
+
+    document.getElementById("addTermForm").reset();
+    alert(`➕ 신규 용어 '${newTermObj.term}'(NO.${newId})가 성공적으로 등록 및 저장되었습니다!`);
+  });
+
+  // Global Delete Glossary Function
+  window.deleteGlossaryItem = function(id) {
+    if (confirm(`정말로 ID ${id}번 용어를 삭제하시겠습니까?`)) {
+      let glossaryList = DataManager.getGlossary();
+      glossaryList = glossaryList.filter(item => item.id !== id);
+      DataManager.saveGlossary(glossaryList);
+      renderGlossary();
+      renderAdminGlossaryTable();
+    }
+  };
+
+  // --- Admin Tab 3: Trends Management ---
+  function renderAdminNewsTable() {
+    const newsList = DataManager.getNews();
+    document.getElementById("adminNewsCount").textContent = newsList.length;
+    const tableBody = document.getElementById("adminNewsTableBody");
+    tableBody.innerHTML = "";
+
+    newsList.forEach((news) => {
+      const tr = document.createElement("tr");
+      tr.style.borderBottom = "1px solid var(--border-glass)";
+      tr.innerHTML = `
+        <td style="padding: 0.75rem; color: var(--text-dim);">${news.date}</td>
+        <td style="padding: 0.75rem; color: var(--accent-gold);">${news.mediaOutlet || "언론사"}</td>
+        <td style="padding: 0.75rem; font-weight: 600;">${news.title}</td>
+        <td style="padding: 0.75rem;"><a href="${news.articleLink || '#'}" target="_blank" style="color: var(--secondary-blue);">링크</a></td>
+        <td style="padding: 0.75rem; text-align: center; white-space: nowrap;">
+          <button class="admin-action-btn edit" onclick="editNewsItem(${news.id})">수정</button>
+          <button class="admin-action-btn delete" onclick="deleteNewsItem(${news.id})">삭제</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  // Edit / Add News Submit
+  document.getElementById("adminNewsForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    let newsList = DataManager.getNews();
+    const editIdStr = document.getElementById("editNewsId").value;
+
+    const tagsArr = document.getElementById("newsTags").value.split(",").map(t => t.trim()).filter(t => t.length > 0);
+
+    if (editIdStr !== "") {
+      // Edit Existing
+      const editId = parseInt(editIdStr, 10);
+      newsList = newsList.map(item => {
+        if (item.id === editId) {
+          return {
+            ...item,
+            title: document.getElementById("newsTitle").value,
+            category: document.getElementById("newsCategory").value,
+            date: document.getElementById("newsDate").value,
+            mediaOutlet: document.getElementById("newsMediaOutlet").value,
+            articleLink: document.getElementById("newsArticleLink").value,
+            snippet: document.getElementById("newsSnippet").value,
+            tags: tagsArr
+          };
+        }
+        return item;
+      });
+      alert("📰 동향 기사 및 분석 내용이 수정 저장되었습니다!");
+    } else {
+      // Add New
+      const newId = newsList.length > 0 ? Math.max(...newsList.map(n => n.id)) + 1 : 1;
+      const newNewsObj = {
+        id: newId,
+        title: document.getElementById("newsTitle").value,
+        category: document.getElementById("newsCategory").value,
+        date: document.getElementById("newsDate").value,
+        mediaOutlet: document.getElementById("newsMediaOutlet").value,
+        articleLink: document.getElementById("newsArticleLink").value,
+        snippet: document.getElementById("newsSnippet").value,
+        tags: tagsArr
+      };
+      newsList.push(newNewsObj);
+      alert(`📰 신규 동향 기사 '${newNewsObj.title}'가 등록 저장되었습니다!`);
+    }
+
+    DataManager.saveNews(newsList);
+    resetNewsForm();
+    renderNews();
+    renderAdminNewsTable();
+  });
+
+  window.editNewsItem = function(id) {
+    const newsList = DataManager.getNews();
+    const target = newsList.find(n => n.id === id);
+    if (!target) return;
+
+    document.getElementById("editNewsId").value = target.id;
+    document.getElementById("newsTitle").value = target.title;
+    document.getElementById("newsCategory").value = target.category || "";
+    document.getElementById("newsDate").value = target.date || "";
+    document.getElementById("newsMediaOutlet").value = target.mediaOutlet || "";
+    document.getElementById("newsArticleLink").value = target.articleLink || "";
+    document.getElementById("newsSnippet").value = target.snippet;
+    document.getElementById("newsTags").value = (target.tags || []).join(", ");
+
+    document.getElementById("newsFormHeader").textContent = `✏️ 동향 기사 수정 (ID: ${target.id})`;
+    document.getElementById("newsFormSubmitText").textContent = "💾 동향 기사 수정 저장";
+    document.getElementById("cancelNewsEditBtn").style.display = "inline-block";
+  };
+
+  document.getElementById("cancelNewsEditBtn").addEventListener("click", resetNewsForm);
+
+  function resetNewsForm() {
+    document.getElementById("adminNewsForm").reset();
+    document.getElementById("editNewsId").value = "";
+    document.getElementById("newsFormHeader").textContent = "➕ 신규 동향 기사 작성 / 수정";
+    document.getElementById("newsFormSubmitText").textContent = "➕ 동향 기사 추가 저장";
+    document.getElementById("cancelNewsEditBtn").style.display = "none";
+  }
+
+  window.deleteNewsItem = function(id) {
+    if (confirm(`정말로 기사 ID ${id}번 항목을 삭제하시겠습니까?`)) {
+      let newsList = DataManager.getNews();
+      newsList = newsList.filter(item => item.id !== id);
+      DataManager.saveNews(newsList);
+      renderNews();
+      renderAdminNewsTable();
+    }
+  };
+
+  // Initial Data Render Calls
+  renderCreatorProfile();
   renderGlossary();
   renderNews();
   loadQuiz();

@@ -1183,3 +1183,58 @@ footer a {
     padding: 4rem 0;
   }
 }
+
+/* Admin Nav Button & Admin Panel Styling */
+.admin-nav-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 183, 3, 0.15);
+  border: 1px solid var(--accent-gold);
+  border-radius: var(--radius-pill);
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.admin-nav-btn:hover {
+  background: var(--accent-gold);
+  color: var(--bg-deep);
+  box-shadow: 0 0 15px var(--accent-gold-glow);
+}
+
+.admin-tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+.admin-action-btn {
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  transition: var(--transition-fast);
+  margin: 0 0.2rem;
+}
+
+.admin-action-btn.edit {
+  border-color: var(--primary-cyan);
+  color: var(--primary-cyan);
+}
+
+.admin-action-btn.edit:hover {
+  background: rgba(0, 245, 212, 0.2);
+}
+
+.admin-action-btn.delete {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+.admin-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
