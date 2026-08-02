@@ -386,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = document.getElementById("adminUsername").value.trim();
     const pw = document.getElementById("adminPassword").value.trim();
 
-    if (id === "admin" && pw === "1234") {
+    if (id === "admin" && pw === DataManager.getAdminPassword()) {
       isAdminLoggedIn = true;
       adminLoginError.style.display = "none";
       adminLoginModal.classList.remove("active");
@@ -419,9 +419,31 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("관리자 계정에서 로그아웃되었습니다.");
   });
 
+  // Change Password Button
+  const changePwBtn = document.getElementById("changePwBtn");
+  if (changePwBtn) {
+    changePwBtn.addEventListener("click", () => {
+      const currentPw = prompt("보안을 위해 현재 비밀번호를 입력해주세요:");
+      if (currentPw === null) return; // Cancelled
+      if (currentPw !== DataManager.getAdminPassword()) {
+        alert("⚠️ 현재 비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      const newPw = prompt("새로운 관리자 비밀번호를 입력해주세요:");
+      if (!newPw || newPw.trim() === "") {
+        alert("비밀번호는 공백일 수 없습니다.");
+        return;
+      }
+
+      DataManager.saveAdminPassword(newPw.trim());
+      alert(`🔑 관리자 비밀번호가 성공적으로 변경되었습니다!\n다음 로그인부터 새 비밀번호로 접속하세요.`);
+    });
+  }
+
   // Reset Data Button
   resetDataBtn.addEventListener("click", () => {
-    if (confirm("정말로 모든 추가/수정된 데이터를 초기화하고 기본 데이터로 되돌리시겠습니까?")) {
+    if (confirm("정말로 모든 추가/수정된 데이터를 초기화하고 기본 데이터로 되돌리시겠습니까? (비밀번호도 1234로 초기화됩니다)")) {
       DataManager.resetAllToDefault();
       renderCreatorProfile();
       renderGlossary();

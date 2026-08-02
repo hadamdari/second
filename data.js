@@ -648,7 +648,16 @@ const DataManager = {
   STORAGE_KEYS: {
     CREATOR: "semilab_creator_profile",
     GLOSSARY: "semilab_glossary_list",
-    NEWS: "semilab_news_list"
+    NEWS: "semilab_news_list",
+    ADMIN_PW: "semilab_admin_pw"
+  },
+
+  getAdminPassword() {
+    return localStorage.getItem(this.STORAGE_KEYS.ADMIN_PW) || "1234";
+  },
+
+  saveAdminPassword(newPw) {
+    localStorage.setItem(this.STORAGE_KEYS.ADMIN_PW, newPw);
   },
 
   getCreator() {
@@ -691,5 +700,6 @@ const DataManager = {
     localStorage.removeItem(this.STORAGE_KEYS.CREATOR);
     localStorage.removeItem(this.STORAGE_KEYS.GLOSSARY);
     localStorage.removeItem(this.STORAGE_KEYS.NEWS);
+    localStorage.removeItem(this.STORAGE_KEYS.ADMIN_PW);
   }
 };
