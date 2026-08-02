@@ -667,7 +667,7 @@ const DataManager = {
   },
 
   getAdminPassword() {
-    return localStorage.getItem(this.STORAGE_KEYS.ADMIN_PW) || "1234";
+    return localStorage.getItem(this.STORAGE_KEYS.ADMIN_PW) || "0104010";
   },
 
   saveAdminPassword(newPw) {
