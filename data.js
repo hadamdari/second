@@ -644,8 +644,13 @@ const QUIZ_DATA = [
 ];
 
 // Supabase Client Config & DataManager
-const SUPABASE_URL = "https://fufddwnvmscezmosfrca.supabase.co";
-const SUPABASE_KEY = "sb_publishable_c13z6QqiWMKorXdJIOuNmw_tVv87gzT";
+const SUPABASE_URL = (typeof process !== "undefined" && process.env && process.env.SUPABASE_URL) 
+  ? process.env.SUPABASE_URL 
+  : "https://fufddwnvmscezmosfrca.supabase.co";
+
+const SUPABASE_KEY = (typeof process !== "undefined" && process.env && process.env.SUPABASE_KEY) 
+  ? process.env.SUPABASE_KEY 
+  : "sb_publishable_c13z6QqiWMKorXdJIOuNmw_tVv87gzT";
 
 let supabaseClient = null;
 try {

@@ -344,21 +344,55 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 8. Contact Form Handling
+  // 8. Contact Form Handling (EmailJS Integration)
   contactForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("senderName").value;
-    const email = document.getElementById("senderEmail").value;
+    const name = (document.getElementById("senderName").value || "").trim();
+    const email = (document.getElementById("senderEmail").value || "").trim();
     const role = document.getElementById("senderRole").value;
-    const msg = document.getElementById("senderMessage").value;
+    const msg = (document.getElementById("senderMessage").value || "").trim();
 
     if (!name || !email || !msg) {
-      alert("모든 필수 항목을 입력해주세요.");
+      alert("모든 필수 항목을 입력해 주세요.");
       return;
     }
 
-    alert(`📧 [SemiLab 메일 발송 성공]\n\n보내신 분: ${name} (${role})\n답장 받으실 이메일: ${email}\n\n권지연 제작자에게 메시지가 성공적으로 전송되었습니다! 정성껏 검토 후 답장드리겠습니다.`);
-    contactForm.reset();
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = "<span>⏳ 메일 전송 중...</span>";
+
+    const templateParams = {
+      from_named: name,
+      from_email: email,
+      message: `[사용자 구분: ${role}]\n\n${msg}`,
+      from_name: name,
+      to_email: "kjk09002@gmail.com"
+    };
+
+    const serviceId = (typeof process !== "undefined" && process.env && process.env.EMAILJS_SERVICE_ID) || "service_aluct4d";
+    const templateId = (typeof process !== "undefined" && process.env && process.env.EMAILJS_TEMPLATE_ID) || "template_5evf61k";
+    const publicKey = (typeof process !== "undefined" && process.env && process.env.EMAILJS_PUBLIC_KEY) || "a-jC2llJwd0O5xSSJ";
+
+    if (window.emailjs) {
+      emailjs.send(serviceId, templateId, templateParams, publicKey)
+        .then(() => {
+          alert(`📧 [이메일 발송 성공]\n\n보내신 분: ${name} (${email})\n\nkjk09002@gmail.com (제작자)에게 이메일이 성공적으로 전송되었습니다!`);
+          contactForm.reset();
+        })
+        .catch((err) => {
+          console.error("EmailJS send error:", err);
+          alert("❌ 이메일 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        });
+    } else {
+      alert("❌ EmailJS 모듈을 로드하지 못했습니다. 네트워크 연결을 확인해 주세요.");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
   });
 
   // ==========================================================================
