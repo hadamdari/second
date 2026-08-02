@@ -60,8 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // 1. Render Creator Profile Section from DataManager
-  function renderCreatorProfile() {
-    const profile = DataManager.getCreator();
+  async function renderCreatorProfile() {
+    const profile = await DataManager.getCreator();
     const creatorContainer = document.querySelector("#creator .creator-container");
     if (!creatorContainer) return;
 
@@ -109,9 +109,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 2. Render Glossary Section from DataManager
-  function renderGlossary() {
+  async function renderGlossary() {
     glossaryGrid.innerHTML = "";
-    const glossaryList = DataManager.getGlossary();
+    const glossaryList = await DataManager.getGlossary();
 
     const filtered = glossaryList.filter((item) => {
       if (currentCategory !== 0 && item.category !== currentCategory) return false;
@@ -238,9 +238,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 5. Render News Trends Section from DataManager
-  function renderNews() {
+  async function renderNews() {
     newsGrid.innerHTML = "";
-    const newsList = DataManager.getNews();
+    const newsList = await DataManager.getNews();
 
     newsList.forEach(news => {
       const card = document.createElement("div");
@@ -398,10 +398,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Open Admin Dashboard
-  function openAdminDashboard() {
-    populateAdminProfileForm();
-    renderAdminGlossaryTable();
-    renderAdminNewsTable();
+  async function openAdminDashboard() {
+    await populateAdminProfileForm();
+    await renderAdminGlossaryTable();
+    await renderAdminNewsTable();
     adminDashboardModal.classList.add("active");
     document.body.style.overflow = "hidden";
   }
@@ -442,15 +442,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Reset Data Button
-  resetDataBtn.addEventListener("click", () => {
+  resetDataBtn.addEventListener("click", async () => {
     if (confirm("정말로 모든 추가/수정된 데이터를 초기화하고 기본 데이터로 되돌리시겠습니까? (비밀번호도 1234로 초기화됩니다)")) {
-      DataManager.resetAllToDefault();
-      renderCreatorProfile();
-      renderGlossary();
-      renderNews();
-      populateAdminProfileForm();
-      renderAdminGlossaryTable();
-      renderAdminNewsTable();
+      await DataManager.resetAllToDefault();
+      await renderCreatorProfile();
+      await renderGlossary();
+      await renderNews();
+      await populateAdminProfileForm();
+      await renderAdminGlossaryTable();
+      await renderAdminNewsTable();
       alert("모든 데이터가 기본값으로 성공적으로 초기화되었습니다.");
     }
   });
@@ -468,8 +468,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- Admin Tab 1: Creator Profile Edit Form ---
-  function populateAdminProfileForm() {
-    const profile = DataManager.getCreator();
+  async function populateAdminProfileForm() {
+    const profile = await DataManager.getCreator();
     document.getElementById("editCreatorName").value = profile.name;
     document.getElementById("editCreatorEngName").value = profile.engName;
     document.getElementById("editCreatorDept").value = profile.dept;
@@ -484,7 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("editCreatorResearch2Desc").value = profile.research2Desc;
   }
 
-  document.getElementById("adminProfileForm").addEventListener("submit", (e) => {
+  document.getElementById("adminProfileForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const updatedProfile = {
       name: document.getElementById("editCreatorName").value,
@@ -501,14 +501,14 @@ document.addEventListener("DOMContentLoaded", () => {
       research2Desc: document.getElementById("editCreatorResearch2Desc").value
     };
 
-    DataManager.saveCreator(updatedProfile);
-    renderCreatorProfile();
-    alert("💾 제작자 프로필 정보가 성공적으로 수정되어 저장되었습니다!");
+    await DataManager.saveCreator(updatedProfile);
+    await renderCreatorProfile();
+    alert("💾 제작자 프로필 정보가 성공적으로 수정되어 Supabase DB에 저장되었습니다!");
   });
 
   // --- Admin Tab 2: Glossary Management ---
-  function renderAdminGlossaryTable() {
-    const glossaryList = DataManager.getGlossary();
+  async function renderAdminGlossaryTable() {
+    const glossaryList = await DataManager.getGlossary();
     document.getElementById("adminGlossaryCount").textContent = glossaryList.length;
     const tableBody = document.getElementById("adminGlossaryTableBody");
     tableBody.innerHTML = "";
@@ -530,9 +530,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Add Term Form Submit
-  document.getElementById("addTermForm").addEventListener("submit", (e) => {
+  document.getElementById("addTermForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const glossaryList = DataManager.getGlossary();
+    const glossaryList = await DataManager.getGlossary();
     const newId = glossaryList.length > 0 ? Math.max(...glossaryList.map(t => t.id)) + 1 : 1;
 
     const catValue = parseInt(document.getElementById("addCategory").value, 10);
@@ -563,29 +563,27 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     glossaryList.push(newTermObj);
-    DataManager.saveGlossary(glossaryList);
+    await DataManager.saveGlossary(glossaryList);
 
-    renderGlossary();
-    renderAdminGlossaryTable();
+    await renderGlossary();
+    await renderAdminGlossaryTable();
 
     document.getElementById("addTermForm").reset();
-    alert(`➕ 신규 용어 '${newTermObj.term}'(NO.${newId})가 성공적으로 등록 및 저장되었습니다!`);
+    alert(`➕ 신규 용어 '${newTermObj.term}'(NO.${newId})가 성공적으로 등록 및 DB 저장되었습니다!`);
   });
 
   // Global Delete Glossary Function
-  window.deleteGlossaryItem = function(id) {
+  window.deleteGlossaryItem = async function(id) {
     if (confirm(`정말로 ID ${id}번 용어를 삭제하시겠습니까?`)) {
-      let glossaryList = DataManager.getGlossary();
-      glossaryList = glossaryList.filter(item => item.id !== id);
-      DataManager.saveGlossary(glossaryList);
-      renderGlossary();
-      renderAdminGlossaryTable();
+      await DataManager.deleteGlossaryItem(id);
+      await renderGlossary();
+      await renderAdminGlossaryTable();
     }
   };
 
   // --- Admin Tab 3: Trends Management ---
-  function renderAdminNewsTable() {
-    const newsList = DataManager.getNews();
+  async function renderAdminNewsTable() {
+    const newsList = await DataManager.getNews();
     document.getElementById("adminNewsCount").textContent = newsList.length;
     const tableBody = document.getElementById("adminNewsTableBody");
     tableBody.innerHTML = "";
@@ -608,9 +606,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Edit / Add News Submit
-  document.getElementById("adminNewsForm").addEventListener("submit", (e) => {
+  document.getElementById("adminNewsForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    let newsList = DataManager.getNews();
+    let newsList = await DataManager.getNews();
     const editIdStr = document.getElementById("editNewsId").value;
 
     const tagsArr = document.getElementById("newsTags").value.split(",").map(t => t.trim()).filter(t => t.length > 0);
@@ -633,7 +631,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         return item;
       });
-      alert("📰 동향 기사 및 분석 내용이 수정 저장되었습니다!");
+      alert("📰 동향 기사 및 분석 내용이 Supabase DB에 수정 저장되었습니다!");
     } else {
       // Add New
       const newId = newsList.length > 0 ? Math.max(...newsList.map(n => n.id)) + 1 : 1;
@@ -648,17 +646,17 @@ document.addEventListener("DOMContentLoaded", () => {
         tags: tagsArr
       };
       newsList.push(newNewsObj);
-      alert(`📰 신규 동향 기사 '${newNewsObj.title}'가 등록 저장되었습니다!`);
+      alert(`📰 신규 동향 기사 '${newNewsObj.title}'가 등록 및 DB 저장되었습니다!`);
     }
 
-    DataManager.saveNews(newsList);
+    await DataManager.saveNews(newsList);
     resetNewsForm();
-    renderNews();
-    renderAdminNewsTable();
+    await renderNews();
+    await renderAdminNewsTable();
   });
 
-  window.editNewsItem = function(id) {
-    const newsList = DataManager.getNews();
+  window.editNewsItem = async function(id) {
+    const newsList = await DataManager.getNews();
     const target = newsList.find(n => n.id === id);
     if (!target) return;
 
@@ -686,19 +684,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cancelNewsEditBtn").style.display = "none";
   }
 
-  window.deleteNewsItem = function(id) {
+  window.deleteNewsItem = async function(id) {
     if (confirm(`정말로 기사 ID ${id}번 항목을 삭제하시겠습니까?`)) {
-      let newsList = DataManager.getNews();
-      newsList = newsList.filter(item => item.id !== id);
-      DataManager.saveNews(newsList);
-      renderNews();
-      renderAdminNewsTable();
+      await DataManager.deleteNewsItem(id);
+      await renderNews();
+      await renderAdminNewsTable();
     }
   };
 
   // Initial Data Render Calls
-  renderCreatorProfile();
-  renderGlossary();
-  renderNews();
-  loadQuiz();
+  (async () => {
+    await renderCreatorProfile();
+    await renderGlossary();
+    await renderNews();
+    loadQuiz();
+  })();
 });

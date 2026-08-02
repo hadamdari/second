@@ -643,7 +643,16 @@ const QUIZ_DATA = [
   }
 ];
 
-// DataManager for LocalStorage Sync
+// Supabase Client Config & DataManager
+const SUPABASE_URL = "https://fufddwnvmscezmosfrca.supabase.co";
+const SUPABASE_KEY = "sb_publishable_c13z6QqiWMKorXdJIOuNmw_tVv87gzT";
+
+let supabase = null;
+if (window.supabase && typeof window.supabase.createClient === "function") {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+// DataManager for Supabase Database & Fallback Storage Sync
 const DataManager = {
   STORAGE_KEYS: {
     CREATOR: "semilab_creator_profile",
@@ -665,7 +674,38 @@ const DataManager = {
     localStorage.setItem(this.STORAGE_KEYS.ADMIN_PW, newPw);
   },
 
-  getCreator() {
+  // --- Creator Profile (소개) ---
+  async getCreator() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("creator_profile")
+          .select("*")
+          .eq("id", 1)
+          .maybeSingle();
+
+        if (data && !error) {
+          const profileObj = {
+            name: data.name,
+            engName: data.eng_name,
+            dept: data.dept,
+            phone: data.phone,
+            email: data.email,
+            bioHeadline: data.bio_headline,
+            bioParagraph1: data.bio_paragraph1,
+            bioParagraph2: data.bio_paragraph2,
+            research1Title: data.research1_title,
+            research1Desc: data.research1_desc,
+            research2Title: data.research2_title,
+            research2Desc: data.research2_desc
+          };
+          localStorage.setItem(this.STORAGE_KEYS.CREATOR, JSON.stringify(profileObj));
+          return profileObj;
+        }
+      } catch (err) {
+        console.warn("Supabase fetch failed for creator_profile, using fallback:", err);
+      }
+    }
     const saved = localStorage.getItem(this.STORAGE_KEYS.CREATOR);
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { console.error(e); }
@@ -673,23 +713,62 @@ const DataManager = {
     return DEFAULT_CREATOR_PROFILE;
   },
 
-  saveCreator(profileObj) {
+  async saveCreator(profileObj) {
     localStorage.setItem(this.STORAGE_KEYS.CREATOR, JSON.stringify(profileObj));
-  },
-
-  getGlossary() {
-    const saved = localStorage.getItem(this.STORAGE_KEYS.GLOSSARY);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from("creator_profile")
+          .upsert({
+            id: 1,
+            name: profileObj.name,
+            eng_name: profileObj.engName,
+            dept: profileObj.dept,
+            phone: profileObj.phone,
+            email: profileObj.email,
+            bio_headline: profileObj.bioHeadline,
+            bio_paragraph1: profileObj.bioParagraph1,
+            bio_paragraph2: profileObj.bioParagraph2,
+            research1_title: profileObj.research1Title,
+            research1_desc: profileObj.research1Desc,
+            research2_title: profileObj.research2Title,
+            research2_desc: profileObj.research2Desc,
+            updated_at: new Date().toISOString()
+          });
+        if (error) console.error("Supabase upsert creator_profile error:", error);
+      } catch (err) {
+        console.error("Supabase saveCreator error:", err);
+      }
     }
-    return DEFAULT_GLOSSARY_DATA;
   },
 
-  saveGlossary(glossaryArray) {
-    localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryArray));
-  },
+  // --- News & Portfolio Work Items (동향 및 작업물) ---
+  async getNews() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("news_trends")
+          .select("*")
+          .order("id", { ascending: true });
 
-  getNews() {
+        if (data && !error && data.length > 0) {
+          const newsList = data.map(item => ({
+            id: Number(item.id),
+            title: item.title,
+            category: item.category,
+            date: item.date,
+            mediaOutlet: item.media_outlet,
+            articleLink: item.article_link,
+            snippet: item.snippet,
+            tags: item.tags || []
+          }));
+          localStorage.setItem(this.STORAGE_KEYS.NEWS, JSON.stringify(newsList));
+          return newsList;
+        }
+      } catch (err) {
+        console.warn("Supabase fetch failed for news_trends, using fallback:", err);
+      }
+    }
     const saved = localStorage.getItem(this.STORAGE_KEYS.NEWS);
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { console.error(e); }
@@ -697,14 +776,131 @@ const DataManager = {
     return DEFAULT_NEWS_TRENDS;
   },
 
-  saveNews(newsArray) {
+  async saveNews(newsArray) {
     localStorage.setItem(this.STORAGE_KEYS.NEWS, JSON.stringify(newsArray));
+    if (supabase) {
+      try {
+        const rows = newsArray.map(item => ({
+          id: item.id,
+          title: item.title,
+          category: item.category,
+          date: item.date,
+          media_outlet: item.mediaOutlet,
+          article_link: item.articleLink,
+          snippet: item.snippet,
+          tags: item.tags || []
+        }));
+        const { error } = await supabase
+          .from("news_trends")
+          .upsert(rows);
+        if (error) console.error("Supabase upsert news_trends error:", error);
+      } catch (err) {
+        console.error("Supabase saveNews error:", err);
+      }
+    }
   },
 
-  resetAllToDefault() {
+  async deleteNewsItem(id) {
+    let newsList = await this.getNews();
+    newsList = newsList.filter(item => item.id !== id);
+    localStorage.setItem(this.STORAGE_KEYS.NEWS, JSON.stringify(newsList));
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from("news_trends")
+          .delete()
+          .eq("id", id);
+        if (error) console.error("Supabase delete news_trends error:", error);
+      } catch (err) {
+        console.error("Supabase deleteNewsItem error:", err);
+      }
+    }
+    return newsList;
+  },
+
+  // --- Glossary (용어집 50선) ---
+  async getGlossary() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("glossary")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (data && !error && data.length > 0) {
+          const glossaryList = data.map(item => ({
+            id: Number(item.id),
+            category: item.category,
+            categoryName: item.category_name,
+            term: item.term,
+            engTerm: item.eng_term,
+            summary: item.summary,
+            desc: item.desc_text,
+            audienceTags: item.audience_tags || [],
+            analogy: item.analogy
+          }));
+          localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryList));
+          return glossaryList;
+        }
+      } catch (err) {
+        console.warn("Supabase fetch failed for glossary, using fallback:", err);
+      }
+    }
+    const saved = localStorage.getItem(this.STORAGE_KEYS.GLOSSARY);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return DEFAULT_GLOSSARY_DATA;
+  },
+
+  async saveGlossary(glossaryArray) {
+    localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryArray));
+    if (supabase) {
+      try {
+        const rows = glossaryArray.map(item => ({
+          id: item.id,
+          category: item.category,
+          category_name: item.categoryName,
+          term: item.term,
+          eng_term: item.engTerm,
+          summary: item.summary,
+          desc_text: item.desc,
+          audience_tags: item.audienceTags || [],
+          analogy: item.analogy
+        }));
+        const { error } = await supabase
+          .from("glossary")
+          .upsert(rows);
+        if (error) console.error("Supabase upsert glossary error:", error);
+      } catch (err) {
+        console.error("Supabase saveGlossary error:", err);
+      }
+    }
+  },
+
+  async deleteGlossaryItem(id) {
+    let glossaryList = await this.getGlossary();
+    glossaryList = glossaryList.filter(item => item.id !== id);
+    localStorage.setItem(this.STORAGE_KEYS.GLOSSARY, JSON.stringify(glossaryList));
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from("glossary")
+          .delete()
+          .eq("id", id);
+        if (error) console.error("Supabase delete glossary error:", error);
+      } catch (err) {
+        console.error("Supabase deleteGlossaryItem error:", err);
+      }
+    }
+    return glossaryList;
+  },
+
+  async resetAllToDefault() {
     localStorage.removeItem(this.STORAGE_KEYS.CREATOR);
     localStorage.removeItem(this.STORAGE_KEYS.GLOSSARY);
     localStorage.removeItem(this.STORAGE_KEYS.NEWS);
     localStorage.removeItem(this.STORAGE_KEYS.ADMIN_PW);
   }
 };
+
