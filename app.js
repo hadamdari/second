@@ -386,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = document.getElementById("adminUsername").value.trim();
     const pw = document.getElementById("adminPassword").value.trim();
 
-    if (id === "admin" && pw === DataManager.getAdminPassword()) {
+    if (id === DataManager.getAdminUsername() && pw === DataManager.getAdminPassword()) {
       isAdminLoggedIn = true;
       adminLoginError.style.display = "none";
       adminLoginModal.classList.remove("active");

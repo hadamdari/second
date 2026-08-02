@@ -649,7 +649,12 @@ const DataManager = {
     CREATOR: "semilab_creator_profile",
     GLOSSARY: "semilab_glossary_list",
     NEWS: "semilab_news_list",
+    ADMIN_ID: "semilab_admin_id",
     ADMIN_PW: "semilab_admin_pw"
+  },
+
+  getAdminUsername() {
+    return localStorage.getItem(this.STORAGE_KEYS.ADMIN_ID) || "kjy";
   },
 
   getAdminPassword() {
