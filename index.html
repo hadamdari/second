@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SemiLab | 신소재공학도가 들려주는 쉬운 반도체 백과 & 동향</title>
+  <meta name="description" content="반도체 입문자, 투자자, 교수를 위한 신소재공학도 관점의 반도체 백과사전. 원리부터 50선 용어집, 최신 동향, 제작자 문의까지 한눈에 탐색하세요.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        <div class="logo-chip-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm2 4v8h8V8H8zm2 2h4v4h-4v-4z" />
+          </svg>
+        </div>
+        <span>SemiLab</span>
+        <span class="logo-badge">신소재공학도 랩</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#intro" class="nav-link">💡 반도체 소개</a></li>
+        <li><a href="#glossary" class="nav-link">📖 용어집 50선</a></li>
+        <li><a href="#trends" class="nav-link">📰 최신 동향</a></li>
+        <li><a href="#creator" class="nav-link">👨‍🔬 제작자 소개</a></li>
+        <li><a href="#contact" class="btn-nav-action">✉️ 메일 보내기</a></li>
+      </ul>
+
+      <button class="mobile-menu-btn" onclick="alert('메뉴: 반도체 소개 | 용어집 50선 | 최신 동향 | 제작자 | 메일 보내기')">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="section-tag">
+          <span>✨ Materials Science & Engineering</span>
+        </div>
+        <h1 class="hero-title">
+          신소재공학도가 들려주는<br>
+          <span>쉬운 반도체 이야기</span>
+        </h1>
+        <p class="hero-desc">
+          원자 차원의 전하 이동부터 수십억 개의 트랜지스터가 모인 최첨단 AI 칩까지!<br>
+          반도체 입문자, 투자자, 교수님 모두를 위해 핵심 원리와 필수 용어 50선을 알기 쉽게 정리했습니다.
+        </p>
+
+        <div class="audience-selector-title">📌 맞춤형 탐색 가이드 선택</div>
+        <div class="audience-buttons">
+          <a href="#intro" class="btn-audience">
+            <span>🔰 입문자 / 학생</span>
+            <small style="color:var(--text-dim); display:block;">생활 속 비유로 원리 파악</small>
+          </a>
+          <a href="#glossary" class="btn-audience investor">
+            <span>📈 투자자 / 분석가</span>
+            <small style="color:var(--accent-gold); display:block;">산업 구조 & 핵심 용어</small>
+          </a>
+          <a href="#contact" class="btn-audience">
+            <span>🎓 교수 / 연구자</span>
+            <small style="color:var(--secondary-blue); display:block;">학술 문의 & 제작자 커넥트</small>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="wafer-graphic-container">
+          <div class="wafer-grid-lines"></div>
+          <div class="center-chip">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-cyan)" stroke-width="2">
+              <rect x="5" y="5" width="14" height="14" rx="2" />
+              <path d="M9 9h6v6H9z" />
+              <path d="M3 9h2M3 15h2M19 9h2M19 15h2M9 3v2M15 3v2M9 19v2M15 19v2" />
+            </svg>
+            <div class="chip-logo-text">Si-HUB</div>
+            <div class="chip-sub-text">50 Essential Terms</div>
+          </div>
+        </div>
+
+        <div class="orbit-badge b1">💡 실리콘 (Si) 기판</div>
+        <div class="orbit-badge b2">⚡ N형 / P형 도핑</div>
+        <div class="orbit-badge b3">🔬 포토리소그래피</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Section 1: Introduction -->
+  <section id="intro">
+    <div class="container">
+      <div class="section-tag">01. INTRODUCTION</div>
+      <h2 class="section-title">반도체란 무엇인가요?</h2>
+      <p class="section-subtitle">
+        반도체는 전기의 흐름을 **'필요한 만큼'** 정밀하게 조절할 수 있는 특별한 물질입니다.
+      </p>
+
+      <!-- 3 Materials Comparison -->
+      <div class="intro-grid">
+        <div class="glass-card material-card conductor">
+          <div class="material-icon-wrap">⚡</div>
+          <h3>도체 (Conductor)</h3>
+          <p>전기가 매우 잘 통함<br><strong style="color:var(--text-main);">구리, 알루미늄</strong></p>
+          <p style="margin-top:0.75rem; font-size:0.85rem;">자유 전자가 많아 항상 전류가 자유롭게 이동합니다.</p>
+        </div>
+
+        <div class="glass-card material-card insulator">
+          <div class="material-icon-wrap">🛡️</div>
+          <h3>부도체 (Insulator)</h3>
+          <p>전기가 거의 안 통함<br><strong style="color:var(--text-main);">고무, 유리, 플라스틱</strong></p>
+          <p style="margin-top:0.75rem; font-size:0.85rem;">전하가 움직이지 못해 누전을 막는 절연재로 쓰입니다.</p>
+        </div>
+
+        <div class="glass-card material-card semiconductor">
+          <div class="material-icon-wrap">🎛️</div>
+          <h3>반도체 (Semiconductor)</h3>
+          <p>전기의 흐름을 자유롭게 조절<br><strong style="color:var(--primary-cyan);">실리콘(Si), 게르마늄(Ge)</strong></p>
+          <p style="margin-top:0.75rem; font-size:0.85rem;">온도나 불순물(도핑)로 원할 때만 전기를 통하게 만듭니다.</p>
+        </div>
+      </div>
+
+      <!-- Interactive Principles Tabs -->
+      <div class="glass-card interactive-tab-container">
+        <h3 style="margin-bottom:1.5rem;">🔬 신소재공학도 멘토의 반도체 4대 핵심 원리 노트</h3>
+
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="tab1">1. 왜 실리콘인가?</button>
+          <button class="tab-btn" data-tab="tab2">2. 도핑과 N형/P형</button>
+          <button class="tab-btn" data-tab="tab3">3. 다이오드 & 트랜지스터</button>
+          <button class="tab-btn" data-tab="tab4">4. 칩 제작 4단계</button>
+        </div>
+
+        <!-- Tab 1 -->
+        <div class="tab-content active" id="tab1">
+          <div class="principle-box">
+            <div class="principle-text">
+              <h4>모래에서 시작되는 지능형 물질, 실리콘(Si)</h4>
+              <p>
+                실리콘은 원소 주기율표 14족 원소로, 최외각 전자가 4개입니다. 모래의 주성분인 이산화규소에서 추출할 수 있어 자연계에 극도로 풍부하고 화학적·열적 안정성이 뛰어납니다.
+              </p>
+              <div class="analogy-badge">
+                💡 <strong>쉽게 이해하기:</strong> 수도꼭지가 물의 양을 조절하듯, 실리콘 결정을 조작하여 전자의 흐름을 켜고 끕니다.
+              </div>
+            </div>
+            <div class="principle-diagram">
+              <div style="font-size:3rem; margin-bottom:0.5rem;">🏖️ ➔ 💎 ➔ 📱</div>
+              <p style="text-align:center; color:var(--text-muted); font-size:0.9rem;">풍부한 모래 ➔ 고순도 실리콘 잉곳 ➔ 최첨단 스마트폰 칩
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2 -->
+        <div class="tab-content" id="tab2">
+          <div class="principle-box">
+            <div class="principle-text">
+              <h4>불순물 첨가(도핑)로 부활하는 전기 전도성</h4>
+              <p>
+                순수한 실리콘은 부도체에 가깝습니다. 하지만 인(P)이나 아르세닉(As)을 첨가하면 **N형(전자 풍부)**이 되고, 붕소(B)를 첨가하면 **P형(정공/빈자리 풍부)**이 되어 완벽한
+                스위칭 전하 캐리어가 형성됩니다.
+              </p>
+              <div class="analogy-badge">
+                💡 <strong>쉽게 이해하기:</strong> 맹물에 소금을 살짝 넣어 전기가 통하는 전해질로 바꾸는 양념 레시피!
+              </div>
+            </div>
+            <div class="principle-diagram">
+              <div style="display:flex; gap:1.5rem; justify-content:center;">
+                <div style="background:rgba(0,245,212,0.1); padding:1rem; border-radius:12px; text-align:center;">
+                  <strong style="color:var(--primary-cyan);">N형 반도체</strong><br><small>자유전자(-) 많음</small>
+                </div>
+                <div style="background:rgba(255,183,3,0.1); padding:1rem; border-radius:12px; text-align:center;">
+                  <strong style="color:var(--accent-gold);">P형 반도체</strong><br><small>정공/빈자리(+) 많음</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3 -->
+        <div class="tab-content" id="tab3">
+          <div class="principle-box">
+            <div class="principle-text">
+              <h4>일방통행 다이오드와 전자 스위치 트랜지스터</h4>
+              <p>
+                P형과 N형을 붙이면 한쪽으로만 전류가 흐르는 **다이오드**가 됩니다. 여기에 게이트(Gate) 단자를 추가한 **MOSFET 트랜지스터**는 작은 전압으로 대용량 전류를 온/오프하여
+                컴퓨터의 0과 1을 처리합니다.
+              </p>
+              <div class="analogy-badge">
+                💡 <strong>쉽게 이해하기:</strong> 게이트 전압은 수도꼭지 손잡이! 당기면 물(전류)이 쏟아집니다.
+              </div>
+            </div>
+            <div class="principle-diagram">
+              <div style="font-size:2.5rem; text-align:center;">🚪 (Gate) ➔ 🚰 (Source → Drain)</div>
+              <p style="text-align:center; color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">게이트 전압 켜짐 ➔
+                소스에서 드레인으로 전자 이동</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4 -->
+        <div class="tab-content" id="tab4">
+          <div class="principle-box">
+            <div class="principle-text">
+              <h4>반도체 칩이 만들어지는 4가지 주요 제조 과정</h4>
+              <ol style="margin-left:1.2rem; color:var(--text-muted); line-height:1.8;">
+                <li><strong style="color:var(--text-main);">1. 설계:</strong> 회로 기능과 트랜지스터 배치를 컴퓨터 소프트웨어로 설계</li>
+                <li><strong style="color:var(--text-main);">2. 웨이퍼 준비:</strong> 고순도 실리콘 얇은 원판 준비</li>
+                <li><strong style="color:var(--text-main);">3. 회로 형성:</strong> 빛(포토리소그래피)과 화학 반응(식각/증착) 반복</li>
+                <li><strong style="color:var(--text-main);">4. 검사 및 패키징:</strong> 양품 칩을 골라 외관 포장 및 기판 연결</li>
+              </ol>
+            </div>
+            <div class="principle-diagram">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; width:100%;">
+                <div style="background:rgba(255,255,255,0.05); padding:0.6rem; border-radius:8px; text-align:center;">1.
+                  📐 설계</div>
+                <div style="background:rgba(255,255,255,0.05); padding:0.6rem; border-radius:8px; text-align:center;">2.
+                  💿 웨이퍼</div>
+                <div style="background:rgba(255,255,255,0.05); padding:0.6rem; border-radius:8px; text-align:center;">3.
+                  💡 노광·식각</div>
+                <div style="background:rgba(255,255,255,0.05); padding:0.6rem; border-radius:8px; text-align:center;">4.
+                  📦 패키징</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Glossary 50 -->
+  <section id="glossary" style="background: rgba(11, 19, 43, 0.4);">
+    <div class="container">
+      <div class="section-tag">02. ESSENTIAL GLOSSARY 50</div>
+      <h2 class="section-title">학생 & 투자자를 위한 반도체 필수 용어집 50선</h2>
+      <p class="section-subtitle">
+        첨부 자료의 50가지 핵심 용어를 5개 주제로 분류했습니다. 카테고리 필터와 검색으로 원하는 용어를 찾아 클릭해 보세요.
+      </p>
+
+      <!-- Glossary Controls -->
+      <div class="glossary-controls">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input"
+            placeholder="용어명, 영문 표기, 개념 키워드로 검색 (예: MOSFET, 수율, DRAM, 파운드리...)">
+        </div>
+
+        <div class="category-filters" id="catFilterContainer">
+          <!-- Dynamically inserted buttons -->
+        </div>
+
+        <div class="audience-filter-row">
+          <span>🎯 대상별 빠른 필터:</span>
+          <button class="audience-chip-btn active" data-audience="ALL">전체 보기</button>
+          <button class="audience-chip-btn" data-audience="입문 필수">🔰 입문 필수</button>
+          <button class="audience-chip-btn" data-audience="투자 필수">📈 투자 필수</button>
+          <button class="audience-chip-btn" data-audience="교수/학술">🎓 교수/학술</button>
+          <span style="margin-left:auto; font-weight:600; color:var(--primary-cyan);">
+            표시 항목: <span id="totalCount">50</span>개
+          </span>
+        </div>
+      </div>
+
+      <!-- Glossary Cards Grid -->
+      <div class="glossary-grid" id="glossaryGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Term Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <button class="modal-close-btn" id="modalCloseBtn">✕</button>
+      <div class="modal-category" id="modalCategory">카테고리</div>
+      <h3 class="modal-title" id="modalTitle">용어명</h3>
+      <div class="modal-eng" id="modalEng">English Name</div>
+
+      <div id="modalTags" style="margin-bottom: 1.25rem;"></div>
+
+      <p class="modal-desc" id="modalDesc">상세 설명이 들어갑니다.</p>
+
+      <div class="modal-analogy-box">
+        <h5>💡 신소재공학도 멘토의 실생활 비유 노트</h5>
+        <p id="modalAnalogy">비유 설명이 들어갑니다.</p>
+      </div>
+
+      <div style="text-align: right; margin-top: 1rem;">
+        <button class="btn-nav-action"
+          onclick="document.getElementById('modalOverlay').classList.remove('active'); document.body.style.overflow='auto';">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Latest Trends & News -->
+  <section id="trends">
+    <div class="container">
+      <div class="section-tag">03. MARKET & TECH TRENDS</div>
+      <h2 class="section-title">반도체 시장 & 신소재 최신 동향</h2>
+      <p class="section-subtitle">
+        투자자와 연구자를 위해 최근 반도체 공정 및 차세대 소재 관련 최신 동향을 요약 정리해 드립니다.
+      </p>
+
+      <div class="news-grid" id="newsGrid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Interactive Quiz Box -->
+      <div class="quiz-wrapper">
+        <div class="section-tag"
+          style="background:rgba(255,183,3,0.15); border-color:var(--accent-gold); color:var(--accent-gold);">
+          🧠 POP QUIZ
+        </div>
+        <h3 style="font-size:1.8rem; margin-bottom:0.5rem;">신소재공학도와 함께하는 5분 반도체 퀴즈</h3>
+        <p style="color:var(--text-muted); margin-bottom:2rem;" id="quizScore">점수: 0 / 5</p>
+
+        <div class="quiz-question" id="quizQuestion">질문이 여기에 나타납니다.</div>
+        <div class="quiz-options" id="quizOptions">
+          <!-- Quiz options rendered by JS -->
+        </div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: About Creator -->
+  <section id="creator" style="background: rgba(11, 19, 43, 0.5);">
+    <div class="container">
+      <div class="section-tag">04. ABOUT CREATOR</div>
+      <h2 class="section-title">사이트 제작자 소개</h2>
+      <p class="section-subtitle">
+        반도체의 매력에 빠진 신소재공학도로서, 이론과 산업의 다교 역할을 꿈꾸고 있습니다.
+      </p>
+
+      <div class="creator-container">
+        <div class="creator-card">
+          <div class="creator-avatar">👩‍🔬</div>
+          <h3 class="creator-name">권지연 <span
+              style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">(JIYEON KWON)</span></h3>
+          <div class="creator-dept">신소재공학과 반도체재료 전공</div>
+          <div class="creator-badges" style="margin-top: 0.75rem;">
+            <span class="creator-badge-item">반도체 재료 연구</span>
+            <span class="creator-badge-item">포토리소그래피 공정</span>
+            <span class="creator-badge-item">지식 공유자</span>
+          </div>
+
+          <div
+            style="margin-top: 1.5rem; text-align: left; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+            <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem; font-weight: 600;">📱 Contact
+              Details</div>
+            <div
+              style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📞 전화번호:</span> <strong>010-2993-4116</strong>
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+              <span>📧 이메일:</span> <strong>kjk09002@gmail.com</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="creator-bio">
+          <h3 style="font-size:1.6rem; margin-bottom:1rem; color:var(--primary-cyan);">
+            "어려운 전자 재료학 원리를 누구나 직관적으로 이해할 수 있도록!"
+          </h3>
+          <p>
+            안녕하세요, <strong>신소재공학과 권지연(JIYEON KWON)</strong>입니다. 반도체의 미세 결정 구조와 전하 이동 원리에 매료되어 반도체 재료 및 소자 공정을 탐구하고 있습니다.
+          </p>
+          <p>
+            반도체에 입문하는 학생, 밸류체인을 분석하는 투자자, 그리고 학술 연구 및 강의를 하시는 교수님 모두가 한눈에 원리와 용어 50선, 최신 동향을 파악하고 쉽게 소통할 수 있도록 지식 공유 웹
+            플랫폼을 제작하였습니다.
+          </p>
+
+          <div class="research-list">
+            <div class="research-item">
+              <h5>🔬 관심 영역 1</h5>
+              <p>Extreme UV (EUV) 노광 공정용 포토레지스트 신소재 개발</p>
+            </div>
+            <div class="research-item">
+              <h5>⚡ 관심 영역 2</h5>
+              <p>GAA (Gate-All-Around) 트랜지스터 및 3D HBM 패키징 기술</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Contact Form -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-tag">05. DIRECT CONTACT</div>
+      <h2 class="section-title">제작자에게 메일 보내기</h2>
+      <p class="section-subtitle">
+        궁금한 점, 용어 수정 요청, 피드백, 교수님의 학술 제언이나 협업 문의는 언제든 이메일을 보내주세요!
+      </p>
+
+      <div class="glass-card" style="max-width: 720px; margin: 0 auto;">
+        <form id="contactForm" class="contact-form">
+          <div class="form-group">
+            <label for="senderName">성함 / 닉네임 *</label>
+            <input type="text" id="senderName" class="form-input" placeholder="홍길동" required>
+          </div>
+
+          <div class="form-group">
+            <label for="senderEmail">답장 받으실 이메일 주소 *</label>
+            <input type="email" id="senderEmail" class="form-input" placeholder="example@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="senderRole">신분 / 사용자 구분</label>
+            <select id="senderRole" class="form-select">
+              <option value="입문자 / 학생">🔰 입문자 / 학생</option>
+              <option value="반도체 투자자">📈 반도체 투자자</option>
+              <option value="교수 / 연구자">🎓 교수 / 연구자</option>
+              <option value="기타 문의">💬 기타 문의</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="senderMessage">문의 및 의견 내용 *</label>
+            <textarea id="senderMessage" class="form-textarea" placeholder="권지연 제작자에게 전달할 질문, 의견, 또는 피드백을 자유롭게 작성해 주세요."
+              required></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" style="width: 100%; margin-top: 0.5rem;">
+            <span>✉️ 이메일 보내기</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom:0.5rem;">
+        <strong>SemiLab</strong> — Materials Science & Engineering Semiconductor Knowledge Hub
+      </p>
+      <p style="font-size:0.8rem;">
+        © 2026 SemiLab. Designed with Deep Circuit Theme & Materials Science Insights.
+      </p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
