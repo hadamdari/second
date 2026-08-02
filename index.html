@@ -742,6 +742,14 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    (function() {
+      if (window.emailjs) {
+        emailjs.init("a-jC2llJwd0O5xSSJ");
+      }
+    })();
+  </script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
